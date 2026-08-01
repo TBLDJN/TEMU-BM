@@ -13,6 +13,9 @@
         .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
         .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
         .top-bar{position:sticky;top:0;background:#f3f4f6;padding:16px 0;z-index:99}
+        .item-img {
+            content-visibility: auto;
+        }
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
@@ -37,7 +40,7 @@
     <div class="img-modal" id="modal">
         <div class="flex items-center gap-4">
             <span class="arrow" onclick="prevPic()">&lsaquo;</span>
-            <img id="modalImg" style="max-height:82vh;max-width:85%;">
+            <img id="modalImg" style="max-height:82vh;max-width:85%;" loading="eager">
             <span class="arrow" onclick="nextPic()">&rsaquo;</span>
         </div>
         <div class="flex gap-4 mt-3">
@@ -47,12 +50,23 @@
     </div>
 
 <script>
+// 自动配置好你的CDN前缀
+const CDN_PREFIX = "https://cdn.jsdelivr.net/gh/TBLDJN/temu-image-gallery@main/";
+
 const dataList = [
     {
         code:"BM564",
         imgs:[
-            "pic/BM564/BM564-1.jpg", "pic/BM564/BM564-2.jpg","pic/BM564/BM564-3.jpg","pic/BM564/BM564-4.jpg","pic/BM564/BM564-5.jpg",
-            "pic/BM564/BM564-6.jpg","pic/BM564/BM564-7.jpg","pic/BM564/BM564-8.jpg","pic/BM564/BM564-9.jpg","pic/BM564/BM564-10.jpg"
+            CDN_PREFIX + "pic/BM564/BM564-1.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-2.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-3.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-4.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-5.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-6.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-7.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-8.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-9.jpg",
+            CDN_PREFIX + "pic/BM564/BM564-10.jpg"
         ],
         note:"Temu男装 BM564模特图"
     }
@@ -99,7 +113,7 @@ function renderHome(list){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90">
+            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90 item-img" loading="lazy">
             <div class="p-3">
                 <div class="font-semibold">款号：${item.code}</div>
                 <div class="text-sm text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
@@ -117,7 +131,7 @@ function renderDetail(item){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85" data-imgidx="${i}">
+            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 item-img" loading="lazy" data-imgidx="${i}">
             <div class="p-2">
                 <a href="${url}" download class="block w-full text-center text-xs bg-green-500 text-white py-1 rounded">下载这张</a>
             </div>
@@ -174,7 +188,7 @@ document.addEventListener('keydown', function(e){
     if(e.key === 'ArrowRight') nextPic();
 });
 
-//全局点击监听
+// 全局点击：无搜索结果时，页面任意空白（包括最底部）点击返回首页
 document.body.onclick = function(e){
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
