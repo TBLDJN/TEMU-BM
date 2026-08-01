@@ -77,6 +77,7 @@ const galleryDetail = document.getElementById('galleryDetail');
 const searchDom = document.getElementById('searchInput');
 const backHomeBtn = document.getElementById('backHomeBtn');
 const detailCodeDom = document.getElementById('detailCode');
+const modalDom = document.getElementById('modal');
 
 //切换到首页
 function showHome(){
@@ -155,7 +156,7 @@ function openImageSet(imgs, startIndex=0){
     nowImgs = imgs;
     nowIndex = startIndex;
     refreshModal();
-    document.getElementById('modal').classList.add('active');
+    modalDom.classList.add('active');
 }
 function refreshModal(){
     document.getElementById('modalImg').src = nowImgs[nowIndex];
@@ -170,8 +171,19 @@ function prevPic(){
     refreshModal();
 }
 function closeModal(){
-    document.getElementById('modal').classList.remove('active');
+    modalDom.classList.remove('active');
 }
+
+// ==========【新增】键盘左右按键监听 ==========
+document.addEventListener('keydown', function(e){
+    // 弹窗打开状态才启用快捷键
+    if(!modalDom.classList.contains('active')) return;
+    if(e.key === 'ArrowLeft'){
+        prevPic();
+    }else if(e.key === 'ArrowRight'){
+        nextPic();
+    }
+});
 
 //初始化加载首页
 showHome();
