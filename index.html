@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temu男装模特图库</title>
-    <!-- 已替换为jsDelivr国内加速，整站样式不会错乱，其余代码完全原始 -->
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
             min-height: 100vh;
@@ -48,7 +47,6 @@
     </div>
 
 <script>
-// =====================【所有新增款号在这里添加！！！】=====================
 const dataList = [
     {
         code:"BM564",
@@ -58,20 +56,7 @@ const dataList = [
         ],
         note:"Temu男装 BM564模特图"
     }
-    // ↓↓↓新增款式粘贴模板，放在上面大括号后面，先加英文逗号 , 再粘贴下面模板
-    /*
-    ,
-    {
-        code:"新款号",
-        imgs:[
-            "pic/新款号/新款号-1.jpg",
-            "pic/新款号/新款号-2.jpg"
-        ],
-        note:"Temu男装 新款号模特图"
-    }
-    */
 ];
-// =====================================================================
 
 let nowImgs = [];
 let nowIndex = 0;
