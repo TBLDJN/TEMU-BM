@@ -2,54 +2,59 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Temu男装模特图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
             min-height: 100vh;
+            -webkit-overflow-scrolling: touch; /* 移动端顺滑滚动 */
         }
-        .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:20px}
-        .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-        .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
-        .top-bar{position:sticky;top:0;background:#f3f4f6;padding:16px 0;z-index:99}
+        .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:12px}
+        .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+        .arrow{font-size:32px;color:#fff;cursor:pointer;padding:8px}
+        .top-bar{position:sticky;top:0;background:#f3f4f6;padding:12px 0;z-index:99}
         .item-img {
             content-visibility: auto;
         }
-        /* 图片加载中样式 */
         .img-loading{
             background:#eeeeee;
+        }
+        /* 移动端缩小间距优化渲染压力 */
+        @media (max-width:640px){
+            .gallery-home {gap:12px !important;}
+            .gallery-detail {gap:8px !important;}
         }
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
-    <div class="top-bar px-4 md:px-8">
-        <h1 class="text-3xl font-bold text-center mb-4">Temu男装模特图库</h1>
-        <div class="flex gap-3 items-center">
-            <button id="backHomeBtn" class="px-4 py-2 bg-gray-500 text-white rounded hidden">← 返回首页</button>
-            <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="flex-1 p-3 rounded border text-lg">
+    <div class="top-bar px-3 md:px-8">
+        <h1 class="text-xl md:text-3xl font-bold text-center mb-3">Temu男装模特图库</h1>
+        <div class="flex gap-2 md:gap-3 items-center">
+            <button id="backHomeBtn" class="px-3 py-2 bg-gray-500 text-white rounded text-sm hidden">← 返回首页</button>
+            <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="flex-1 p-2 md:p-3 rounded border text-base">
         </div>
     </div>
 
-    <div class="px-4 md:px-8 py-6">
+    <div class="px-3 md:px-8 py-4 md:py-6">
         <div id="pageHome">
-            <div id="galleryHome" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+            <div id="galleryHome" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gallery-home"></div>
         </div>
         <div id="pageDetail" class="hidden">
-            <h2 class="text-xl font-bold mb-4">款号：<span id="detailCode"></span></h2>
-            <div id="galleryDetail" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"></div>
+            <h2 class="text-lg md:text-xl font-bold mb-3">款号：<span id="detailCode"></span></h2>
+            <div id="galleryDetail" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 gallery-detail"></div>
         </div>
     </div>
 
     <div class="img-modal" id="modal">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 md:gap-4">
             <span class="arrow" onclick="prevPic()">&lsaquo;</span>
-            <img id="modalImg" style="max-height:82vh;max-width:85%;" loading="eager">
+            <img id="modalImg" style="max-height:80vh;max-width:90%;" loading="eager" decoding="async">
             <span class="arrow" onclick="nextPic()">&rsaquo;</span>
         </div>
-        <div class="flex gap-4 mt-3">
-            <a id="downloadLink" download class="bg-blue-500 text-white px-5 py-2 rounded">下载原图</a>
-            <button onclick="closeModal()" class="bg-gray-600 text-white px-5 py-2 rounded">关闭</button>
+        <div class="flex gap-3 mt-2 md:mt-3">
+            <a id="downloadLink" download class="bg-blue-500 text-white px-4 py-2 rounded text-sm">下载原图</a>
+            <button onclick="closeModal()" class="bg-gray-600 text-white px-4 py-2 rounded text-sm">关闭</button>
         </div>
     </div>
 
@@ -89,10 +94,10 @@ const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
 const modalImage = document.getElementById('modalImg');
 
-// 图片加载错误处理
+// 图片错误兜底
 function bindImageError(imgEl){
     imgEl.addEventListener('error',function(){
-        this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999'%3E图片加载失败%3C/text%3E%3C/svg%3E";
+        this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999'%3E加载失败%3C/text%3E%3C/svg%3E";
     })
 }
 
@@ -114,7 +119,7 @@ function showDetail(item){
 function renderHome(list){
     galleryHome.innerHTML = "";
     if(list.length === 0){
-        galleryHome.innerHTML = `<p class="col-span-full text-center text-gray-500 text-xl mt-20">未找到对应款号</p>`;
+        galleryHome.innerHTML = `<p class="col-span-full text-center text-gray-500 text-base mt-16">未找到对应款号</p>`;
         isEmptyResult = true;
         return;
     }
@@ -123,11 +128,11 @@ function renderHome(list){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90 item-img img-loading" loading="lazy">
-            <div class="p-3">
-                <div class="font-semibold">款号：${item.code}</div>
-                <div class="text-sm text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
-                <div class="text-sm text-gray-600 mt-1">${item.note}</div>
+            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90 item-img img-loading" loading="lazy" decoding="async">
+            <div class="p-2 md:p-3">
+                <div class="font-semibold text-sm md:text-base">款号：${item.code}</div>
+                <div class="text-xs text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
+                <div class="text-xs text-gray-600 mt-1">${item.note}</div>
             </div>
         `;
         const img = card.querySelector('img');
@@ -144,8 +149,8 @@ function renderDetail(item){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 item-img img-loading" loading="lazy" data-imgidx="${i}">
-            <div class="p-2">
+            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 item-img img-loading" loading="lazy" decoding="async" data-imgidx="${i}">
+            <div class="p-1 md:p-2">
                 <a href="${url}" download class="block w-full text-center text-xs bg-green-500 text-white py-1 rounded">下载这张</a>
             </div>
         `;
