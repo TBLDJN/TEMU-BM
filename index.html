@@ -25,7 +25,17 @@
             justify-content:center;
             gap:12px;
         }
-        .arrow{font-size:32px;color:#fff;cursor:pointer;padding:8px}
+        .arrow{
+            font-size:32px;
+            color:#fff;
+            cursor:pointer;
+            padding:8px;
+            position:absolute;
+            top:50%;
+            transform:translateY(-50%);
+        }
+        .arrow.left{left:10px;}
+        .arrow.right{right:10px;}
         .top-bar{position:sticky;top:0;background:#f3f4f6;padding:12px 0;z-index:99}
         .img-loading{background:#eee;}
         @media (max-width:640px){
@@ -34,12 +44,14 @@
             .arrow{font-size:24px;}
         }
         .lazy-img[data-src] {background-color: #eeeeee;}
-        /* 弹窗图片全屏适配 */
         #modalImg {
             max-height: 90vh;
             max-width: 95vw;
             object-fit: contain;
+            cursor:pointer;
+            position:relative;
         }
+        .img-modal{position:relative;}
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
@@ -62,11 +74,9 @@
     </div>
 
     <div class="img-modal" id="modal">
-        <div class="flex items-center gap-2 md:gap-4 w-full justify-between px-4">
-            <span class="arrow" onclick="prevPic()">&lsaquo;</span>
-            <img id="modalImg" decoding="async" style="cursor:pointer;">
-            <span class="arrow" onclick="nextPic()">&rsaquo;</span>
-        </div>
+        <span class="arrow left" onclick="prevPic()">&lsaquo;</span>
+        <img id="modalImg" decoding="async">
+        <span class="arrow right" onclick="nextPic()">&rsaquo;</span>
         <div class="flex gap-3 mt-2 md:mt-3">
             <a id="downloadLink" download class="bg-blue-500 text-white px-4 py-2 rounded text-sm">下载原图</a>
             <button onclick="closeModal()" class="bg-gray-600 text-white px-4 py-2 rounded text-sm">关闭</button>
@@ -109,14 +119,12 @@ const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
 const modalImage = document.getElementById('modalImg');
 
-// 图片加载失败兜底
 function bindImageError(imgEl){
     imgEl.addEventListener('error',function(){
         this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999'%3E加载失败%3C/text%3E%3C/svg%3E";
     })
 }
 
-// 原生可视区域懒加载
 const lazyObserver = new IntersectionObserver((entries)=>{
     entries.forEach(entry=>{
         if(entry.isIntersecting){
@@ -231,23 +239,19 @@ function closeModal(){
     modalDom.classList.remove('active');
 }
 
-// 点击弹窗背景空白处关闭
 modalDom.onclick = function(e){
     if(e.target === modalDom){
         closeModal();
     }
 };
-// 点击放大图片关闭弹窗
 modalImage.onclick = closeModal;
 
-// 键盘左右键切换
 document.addEventListener('keydown', function(e){
     if(!modalDom.classList.contains('active')) return;
     if(e.key === 'ArrowLeft') prevPic();
     if(e.key === 'ArrowRight') nextPic();
 });
 
-// 页面空白处无搜索结果返回首页
 document.body.onclick = function(e){
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
@@ -255,7 +259,6 @@ document.body.onclick = function(e){
     }
 }
 
-// 手机触屏滑动切换图片
 let touchStartX = 0;
 let touchEndX = 0;
 modalDom.addEventListener('touchstart', function(e){
