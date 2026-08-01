@@ -101,14 +101,16 @@ function showDetail(item){
 function renderHome(list){
     galleryHome.innerHTML = "";
     if(list.length === 0){
-        galleryHome.innerHTML = `<p id="emptyTip" class="col-span-full text-center text-gray-500 text-xl cursor-pointer mt-20">未找到对应款号</p>`;
-        //空白提示点击返回首页
-        document.getElementById('emptyTip').onclick = function(){
+        galleryHome.innerHTML = `<p class="col-span-full text-center text-gray-500 text-xl mt-20">未找到对应款号</p>`;
+        // 空白区域点击返回首页
+        galleryHome.onclick = function(){
             searchDom.value = '';
             showHome(dataList);
-        }
+        };
         return;
     }
+    //有商品时，取消空白点击事件，防止点击空白误返回
+    galleryHome.onclick = null;
     list.forEach(item=>{
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
