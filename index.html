@@ -6,6 +6,9 @@
     <title>Temu男装模特图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        html, body {
+            min-height: 100vh;
+        }
         .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:20px}
         .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
         .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
@@ -57,7 +60,7 @@ const dataList = [
 
 let nowImgs = [];
 let nowIndex = 0;
-let isEmptyResult = false; // 标记：是否处于【未找到款号】状态
+let isEmptyResult = false;
 
 const pageHome = document.getElementById('pageHome');
 const pageDetail = document.getElementById('pageDetail');
@@ -171,9 +174,8 @@ document.addEventListener('keydown', function(e){
     if(e.key === 'ArrowRight') nextPic();
 });
 
-// ===== 核心修复：全局页面点击事件 =====
+//全局点击监听
 document.body.onclick = function(e){
-    //条件：处于无搜索结果状态 && 点击目标不是搜索输入框（防止输入时误触发）
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
         showHome(dataList);
