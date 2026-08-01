@@ -80,12 +80,12 @@ const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
 const modalImage = document.getElementById('modalImg');
 
-//切换到首页
-function showHome(){
+//切换到首页（支持传入筛选列表）
+function showHome(list = dataList){
     pageHome.classList.remove('hidden');
     pageDetail.classList.add('hidden');
     backHomeBtn.classList.add('hidden');
-    renderHome(dataList);
+    renderHome(list);
 }
 
 //切换到详情页
@@ -140,17 +140,20 @@ function renderDetail(item){
     })
 }
 
-//顶部搜索
+//顶部搜索【修复】
 searchDom.oninput = function(){
     const key = this.value.trim().toLowerCase();
     const filterList = dataList.filter(item=>item.code.toLowerCase().includes(key));
-    renderHome(filterList);
-    //搜索自动回到首页
-    showHome();
+    //直接传入筛选结果渲染首页
+    showHome(filterList);
 }
 
 //返回首页按钮
-backHomeBtn.onclick = showHome;
+backHomeBtn.onclick = function(){
+    //返回首页恢复全部款式
+    searchDom.value = '';
+    showHome(dataList);
+};
 
 //弹窗预览
 function openImageSet(imgs, startIndex=0){
@@ -182,9 +185,8 @@ modalDom.onclick = function(e){
     }
 };
 
-// ==========键盘左右按键监听 ==========
+//键盘左右按键监听
 document.addEventListener('keydown', function(e){
-    // 弹窗打开状态才启用快捷键
     if(!modalDom.classList.contains('active')) return;
     if(e.key === 'ArrowLeft'){
         prevPic();
