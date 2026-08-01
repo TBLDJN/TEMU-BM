@@ -10,12 +10,13 @@
             min-height: 100vh;
             -webkit-overflow-scrolling: touch;
         }
+        /* 弹窗固定全屏，最高层级 */
         .img-modal{
             display:none;
             position:fixed;
             inset:0;
             background:rgba(0,0,0,0.92);
-            z-index:9999;
+            z-index:99999;
             padding:0;
         }
         .img-modal.active{
@@ -49,9 +50,7 @@
             max-width: 95vw;
             object-fit: contain;
             cursor:pointer;
-            position:relative;
         }
-        .img-modal{position:relative;}
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
