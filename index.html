@@ -78,6 +78,7 @@ const searchDom = document.getElementById('searchInput');
 const backHomeBtn = document.getElementById('backHomeBtn');
 const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
+const modalImage = document.getElementById('modalImg');
 
 //切换到首页
 function showHome(){
@@ -159,7 +160,7 @@ function openImageSet(imgs, startIndex=0){
     modalDom.classList.add('active');
 }
 function refreshModal(){
-    document.getElementById('modalImg').src = nowImgs[nowIndex];
+    modalImage.src = nowImgs[nowIndex];
     document.getElementById('downloadLink').href = nowImgs[nowIndex];
 }
 function nextPic(){
@@ -174,7 +175,14 @@ function closeModal(){
     modalDom.classList.remove('active');
 }
 
-// ==========【新增】键盘左右按键监听 ==========
+//点击弹窗黑色空白区域关闭（点击图片内部不会关闭）
+modalDom.onclick = function(e){
+    if(e.target === modalDom){
+        closeModal();
+    }
+};
+
+// ==========键盘左右按键监听 ==========
 document.addEventListener('keydown', function(e){
     // 弹窗打开状态才启用快捷键
     if(!modalDom.classList.contains('active')) return;
