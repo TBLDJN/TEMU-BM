@@ -49,40 +49,48 @@ let nowIndex = 0;
 const galleryDom = document.getElementById('gallery');
 const searchDom = document.getElementById('searchInput');
 
-//渲染款式卡片
+//渲染：展示该款所有图片
 function render(list){
     galleryDom.innerHTML = "";
     if(list.length === 0){
         galleryDom.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xl'>未找到对应款号</p>";
         return;
     }
+
     list.forEach(item=>{
-        const card = document.createElement('div');
-        card.className = "bg-white rounded shadow overflow-hidden";
-        card.innerHTML = `
-            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90">
-            <div class="p-3">
-                <div class="font-semibold">款号：${item.code}</div>
-                <div class="text-sm text-gray-500">共${item.imgs.length}张</div>
-                <div class="text-sm text-gray-600 mt-1">${item.note}</div>
-            </div>
-        `;
-        card.querySelector('img').onclick = ()=>openImageSet(item.imgs);
-        galleryDom.appendChild(card);
+        // 循环渲染当前款式全部图片
+        item.imgs.forEach((imgUrl,index)=>{
+            const card = document.createElement('div');
+            card.className = "bg-white rounded shadow overflow-hidden";
+            card.innerHTML = `
+                <img src="${imgUrl}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90">
+                <div class="p-3">
+                    <div class="font-semibold">款号：${item.code}</div>
+                    <div class="text-sm text-gray-500">第${index+1}/${item.imgs.length}张</div>
+                    <a href="${imgUrl}" download class="inline-block mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm">下载这张</a>
+                </div>
+            `;
+            // 点击图片打开弹窗预览整套图集，定位到当前图片
+            card.querySelector('img').onclick = (e)=>{
+                e.preventDefault();
+                openImageSet(item.imgs, index);
+            };
+            galleryDom.appendChild(card);
+        })
     })
 }
 
-//搜索监听（模糊搜索，输入部分款号就能匹配）
+//搜索监听（模糊搜索）
 searchDom.oninput = function(){
     const key = this.value.trim().toLowerCase();
     const filter = dataList.filter(item=>item.code.toLowerCase().includes(key));
     render(filter);
 }
 
-//弹窗逻辑：打开图集、上一张下一张、下载、关闭
-function openImageSet(imgs){
+//弹窗打开，支持指定初始序号
+function openImageSet(imgs, startIndex=0){
     nowImgs = imgs;
-    nowIndex = 0;
+    nowIndex = startIndex;
     refreshModal();
     document.getElementById('modal').classList.add('active');
 }
@@ -102,8 +110,8 @@ function closeModal(){
     document.getElementById('modal').classList.remove('active');
 }
 
-//页面初始化加载全部款式
-render(dataList);
+// 默认页面空白，需要搜索才显示（如果你想要打开页面自动展示全部，取消下面注释）
+// render(dataList);
 </script>
 </body>
 </html>
