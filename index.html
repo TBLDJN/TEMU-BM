@@ -19,6 +19,9 @@
         @media (max-width:640px){
             #galleryHome {gap:12px !important;}
             #galleryDetail {gap:8px !important;}
+            .arrow{
+                font-size:24px;
+            }
         }
         /* 懒加载图片初始占位 */
         .lazy-img[data-src] {
@@ -231,6 +234,32 @@ document.body.onclick = function(e){
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
         showHome(dataList);
+    }
+}
+
+// ======================【新增：手机触屏左右滑动手势】======================
+let touchStartX = 0;
+let touchEndX = 0;
+// 监听弹窗区域触摸
+modalDom.addEventListener('touchstart', function(e){
+    touchStartX = e.changedTouches[0].screenX;
+},{passive:true});
+
+modalDom.addEventListener('touchend', function(e){
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+},{passive:true});
+
+function handleSwipe(){
+    const swipeThreshold = 50; //滑动最小距离，避免误触
+    const diff = touchEndX - touchStartX;
+    if(Math.abs(diff) < swipeThreshold) return;
+    if(diff > 0){
+        // 右滑 → 上一张
+        prevPic();
+    }else{
+        // 左滑 → 下一张
+        nextPic();
     }
 }
 
