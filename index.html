@@ -16,6 +16,10 @@
         .item-img {
             content-visibility: auto;
         }
+        /* 图片加载中样式 */
+        .img-loading{
+            background:#eeeeee;
+        }
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
@@ -50,7 +54,6 @@
     </div>
 
 <script>
-// jsDelivr CDN地址 已配置完成
 const CDN_PREFIX = "https://cdn.jsdelivr.net/gh/TBLDJN/TEMU-BM@main/";
 
 const dataList = [
@@ -86,6 +89,13 @@ const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
 const modalImage = document.getElementById('modalImg');
 
+// 图片加载错误处理
+function bindImageError(imgEl){
+    imgEl.addEventListener('error',function(){
+        this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999'%3E图片加载失败%3C/text%3E%3C/svg%3E";
+    })
+}
+
 function showHome(list = dataList){
     pageHome.classList.remove('hidden');
     pageDetail.classList.add('hidden');
@@ -113,14 +123,17 @@ function renderHome(list){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90 item-img" loading="lazy">
+            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90 item-img img-loading" loading="lazy">
             <div class="p-3">
                 <div class="font-semibold">款号：${item.code}</div>
                 <div class="text-sm text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
                 <div class="text-sm text-gray-600 mt-1">${item.note}</div>
             </div>
         `;
-        card.querySelector('img').onclick = ()=>showDetail(item);
+        const img = card.querySelector('img');
+        img.onload = ()=> img.classList.remove('img-loading');
+        bindImageError(img);
+        img.onclick = ()=>showDetail(item);
         galleryHome.appendChild(card);
     })
 }
@@ -131,12 +144,15 @@ function renderDetail(item){
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
         card.innerHTML = `
-            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 item-img" loading="lazy" data-imgidx="${i}">
+            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 item-img img-loading" loading="lazy" data-imgidx="${i}">
             <div class="p-2">
                 <a href="${url}" download class="block w-full text-center text-xs bg-green-500 text-white py-1 rounded">下载这张</a>
             </div>
         `;
-        card.querySelector('img').onclick = function(){
+        const img = card.querySelector('img');
+        img.onload = ()=> img.classList.remove('img-loading');
+        bindImageError(img);
+        img.onclick = function(){
             openImageSet(item.imgs, Number(this.dataset.imgidx));
         }
         galleryDetail.appendChild(card);
@@ -188,7 +204,6 @@ document.addEventListener('keydown', function(e){
     if(e.key === 'ArrowRight') nextPic();
 });
 
-// 全局点击：无搜索结果时，页面任意空白（包括最底部）点击返回首页
 document.body.onclick = function(e){
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
