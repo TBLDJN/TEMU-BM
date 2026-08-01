@@ -1,82 +1,95 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh‑CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF‑8">
+    <meta name="viewport" content="width=device‑width, initial‑scale=1.0, maximum‑scale=1.0, user‑scalable=no">
     <title>Temu男装模特图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
-            min-height: 100vh;
-            -webkit-overflow-scrolling: touch;
+            min‑height: 100vh;
+            -webkit‑overflow‑scrolling: touch;
         }
-        .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:12px}
-        .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-        .arrow{font-size:32px;color:#fff;cursor:pointer;padding:8px}
-        .top-bar{position:sticky;top:0;background:#f3f4f6;padding:12px 0;z-index:99}
-        .img-loading{background:#eee;}
-        /* 移动端布局收紧 */
-        @media (max-width:640px){
+        .img‑modal{
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.92);
+            z‑index:9999;
+            padding:0;
+        }
+        .img‑modal.active{
+            display:flex;
+            flex‑direction:column;
+            align‑items:center;
+            justify‑content:center;
+            gap:12px;
+        }
+        .arrow{font‑size:32px;color:#fff;cursor:pointer;padding:8px}
+        .top‑bar{position:sticky;top:0;background:#f3f4f6;padding:12px 0;z‑index:99}
+        .img‑loading{background:#eee;}
+        @media (max‑width:640px){
             #galleryHome {gap:12px !important;}
             #galleryDetail {gap:8px !important;}
-            .arrow{
-                font-size:24px;
-            }
+            .arrow{font‑size:24px;}
         }
-        /* 懒加载图片初始占位 */
-        .lazy-img[data-src] {
-            background-color: #eeeeee;
+        .lazy‑img[data‑src] {background‑color: #eeeeee;}
+        /* 弹窗图片全屏适配 */
+        #modalImg {
+            max‑height: 90vh;
+            max‑width: 95vw;
+            object‑fit: contain;
         }
     </style>
 </head>
-<body class="bg-gray-100 max-w-7xl mx-auto">
-    <div class="top-bar px-3 md:px-8">
-        <h1 class="text-xl md:text-3xl font-bold text-center mb-3">Temu男装模特图库</h1>
-        <div class="flex gap-2 md:gap-3 items-center">
-            <button id="backHomeBtn" class="px-3 py-2 bg-gray-500 text-white rounded text-sm hidden">← 返回首页</button>
-            <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="flex-1 p-2 md:p-3 rounded border text-base">
+<body class="bg‑gray‑100 max‑w‑7xl mx‑auto">
+    <div class="top‑bar px‑3 md:px‑8">
+        <h1 class="text‑xl md:text‑3xl font‑bold text‑center mb‑3">Temu男装模特图库</h1>
+        <div class="flex gap‑2 md:gap‑3 items‑center">
+            <button id="backHomeBtn" class="px‑3 py‑2 bg‑gray‑500 text‑white rounded text‑sm hidden">← 返回首页</button>
+            <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="flex‑1 p‑2 md:p‑3 rounded border text‑base">
         </div>
     </div>
 
-    <div class="px-3 md:px-8 py-4 md:py-6">
+    <div class="px‑3 md:px‑8 py‑4 md:py‑6">
         <div id="pageHome">
-            <div id="galleryHome" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            <div id="galleryHome" class="grid grid‑cols‑2 sm:grid‑cols‑3 md:grid‑cols‑4 lg:grid‑cols‑5 gap‑4"></div>
         </div>
         <div id="pageDetail" class="hidden">
-            <h2 class="text-lg md:text-xl font-bold mb-3">款号：<span id="detailCode"></span></h2>
-            <div id="galleryDetail" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+            <h2 class="text‑lg md:text‑xl font‑bold mb‑3">款号：<span id="detailCode"></span></h2>
+            <div id="galleryDetail" class="grid grid‑cols‑3 sm:grid‑cols‑4 md:grid‑cols‑5 lg:grid‑cols‑6 gap‑3"></div>
         </div>
     </div>
 
-    <div class="img-modal" id="modal">
-        <div class="flex items-center gap-2 md:gap-4">
+    <div class="img‑modal" id="modal">
+        <div class="flex items‑center gap‑2 md:gap‑4 w‑full justify‑between px‑4">
             <span class="arrow" onclick="prevPic()">&lsaquo;</span>
-            <img id="modalImg" style="max-height:80vh;max-width:90%;" decoding="async">
+            <img id="modalImg" decoding="async" style="cursor:pointer;">
             <span class="arrow" onclick="nextPic()">&rsaquo;</span>
         </div>
-        <div class="flex gap-3 mt-2 md:mt-3">
-            <a id="downloadLink" download class="bg-blue-500 text-white px-4 py-2 rounded text-sm">下载原图</a>
-            <button onclick="closeModal()" class="bg-gray-600 text-white px-4 py-2 rounded text-sm">关闭</button>
+        <div class="flex gap‑3 mt‑2 md:mt‑3">
+            <a id="downloadLink" download class="bg‑blue‑500 text‑white px‑4 py‑2 rounded text‑sm">下载原图</a>
+            <button onclick="closeModal()" class="bg‑gray‑600 text‑white px‑4 py‑2 rounded text‑sm">关闭</button>
         </div>
     </div>
 
 <script>
-const CDN_PREFIX = "https://cdn.jsdelivr.net/gh/TBLDJN/TEMU-BM@main/";
+const CDN_PREFIX = "https://cdn.jsdelivr.net/gh/TBLDJN/TEMU‑BM@main/";
 
 const dataList = [
     {
         code:"BM564",
         imgs:[
-            CDN_PREFIX + "pic/BM564/BM564-1.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-2.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-3.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-4.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-5.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-6.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-7.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-8.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-9.jpg",
-            CDN_PREFIX + "pic/BM564/BM564-10.jpg"
+            CDN_PREFIX + "pic/BM564/BM564‑1.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑2.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑3.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑4.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑5.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑6.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑7.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑8.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑9.jpg",
+            CDN_PREFIX + "pic/BM564/BM564‑10.jpg"
         ],
         note:"Temu男装 BM564模特图"
     }
@@ -99,31 +112,31 @@ const modalImage = document.getElementById('modalImg');
 // 图片加载失败兜底
 function bindImageError(imgEl){
     imgEl.addEventListener('error',function(){
-        this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999'%3E加载失败%3C/text%3E%3C/svg%3E";
+        this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Ctext x='50%25' y='50%25' text‑anchor='middle' fill='%23999'%3E加载失败%3C/text%3E%3C/svg%3E";
     })
 }
 
-// ====== 原生可视区域懒加载核心代码 ======
+// 原生可视区域懒加载
 const lazyObserver = new IntersectionObserver((entries)=>{
     entries.forEach(entry=>{
         if(entry.isIntersecting){
             const img = entry.target;
             if(img.dataset.src){
                 img.src = img.dataset.src;
-                img.removeAttribute('data-src');
+                img.removeAttribute('data‑src');
                 lazyObserver.unobserve(img);
             }
         }
     })
-},{rootMargin:"150px 0px"}); // 提前150px预加载
+},{rootMargin:"150px 0px"});
 
 function createLazyImg(url, clickFunc, idx){
     const img = document.createElement('img');
-    img.className = "w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85 lazy-img img-loading";
+    img.className = "w‑full aspect‑[3/4] object‑cover cursor‑pointer hover:opacity‑85 lazy‑img img‑loading";
     img.dataset.src = url;
     img.decoding = "async";
     if(idx !== undefined) img.dataset.imgidx = idx;
-    img.onload = ()=> img.classList.remove('img-loading');
+    img.onload = ()=> img.classList.remove('img‑loading');
     bindImageError(img);
     if(clickFunc) img.onclick = clickFunc;
     lazyObserver.observe(img);
@@ -148,21 +161,21 @@ function showDetail(item){
 function renderHome(list){
     galleryHome.innerHTML = "";
     if(list.length === 0){
-        galleryHome.innerHTML = `<p class="col-span-full text-center text-gray-500 text-base mt-16">未找到对应款号</p>`;
+        galleryHome.innerHTML = `<p class="col‑span‑full text‑center text‑gray‑500 text‑base mt‑16">未找到对应款号</p>`;
         isEmptyResult = true;
         return;
     }
     isEmptyResult = false;
     list.forEach(item=>{
         const card = document.createElement('div');
-        card.className = "bg-white rounded shadow overflow-hidden";
+        card.className = "bg‑white rounded shadow overflow‑hidden";
         const img = createLazyImg(item.imgs[0], ()=>showDetail(item));
         card.appendChild(img);
         card.insertAdjacentHTML('beforeend',`
-            <div class="p-2 md:p-3">
-                <div class="font-semibold text-sm md:text-base">款号：${item.code}</div>
-                <div class="text-xs text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
-                <div class="text-xs text-gray-600 mt-1">${item.note}</div>
+            <div class="p‑2 md:p‑3">
+                <div class="font‑semibold text‑sm md:text‑base">款号：${item.code}</div>
+                <div class="text‑xs text‑gray‑500">共${item.imgs.length}张（点击进入查看全部）</div>
+                <div class="text‑xs text‑gray‑600 mt‑1">${item.note}</div>
             </div>
         `);
         galleryHome.appendChild(card);
@@ -173,12 +186,12 @@ function renderDetail(item){
     galleryDetail.innerHTML = "";
     item.imgs.forEach((url,i)=>{
         const card = document.createElement('div');
-        card.className = "bg-white rounded shadow overflow-hidden";
+        card.className = "bg‑white rounded shadow overflow‑hidden";
         const img = createLazyImg(url, function(){openImageSet(item.imgs, i);}, i);
         card.appendChild(img);
         card.insertAdjacentHTML('beforeend',`
-            <div class="p-1 md:p-2">
-                <a href="${url}" download class="block w-full text-center text-xs bg-green-500 text-white py-1 rounded">下载这张</a>
+            <div class="p‑1 md:p‑2">
+                <a href="${url}" download class="block w‑full text‑center text‑xs bg‑green‑500 text‑white py‑1 rounded">下载这张</a>
             </div>
         `);
         galleryDetail.appendChild(card);
@@ -211,25 +224,30 @@ function nextPic(){
     refreshModal();
 }
 function prevPic(){
-    nowIndex = (nowIndex -1 + nowImgs.length) % nowImgs.length;
+    nowIndex = (nowIndex ‑1 + nowImgs.length) % nowImgs.length;
     refreshModal();
 }
 function closeModal(){
     modalDom.classList.remove('active');
 }
 
+// 点击弹窗背景空白处关闭
 modalDom.onclick = function(e){
     if(e.target === modalDom){
         closeModal();
     }
 };
+// 点击放大的图片本身关闭弹窗
+modalImage.onclick = closeModal;
 
+// 键盘左右键切换
 document.addEventListener('keydown', function(e){
     if(!modalDom.classList.contains('active')) return;
     if(e.key === 'ArrowLeft') prevPic();
     if(e.key === 'ArrowRight') nextPic();
 });
 
+// 页面空白处无搜索结果返回首页
 document.body.onclick = function(e){
     if(isEmptyResult && e.target !== searchDom){
         searchDom.value = '';
@@ -237,10 +255,9 @@ document.body.onclick = function(e){
     }
 }
 
-// ======================【新增：手机触屏左右滑动手势】======================
+// 手机触屏滑动切换图片
 let touchStartX = 0;
 let touchEndX = 0;
-// 监听弹窗区域触摸
 modalDom.addEventListener('touchstart', function(e){
     touchStartX = e.changedTouches[0].screenX;
 },{passive:true});
@@ -251,14 +268,12 @@ modalDom.addEventListener('touchend', function(e){
 },{passive:true});
 
 function handleSwipe(){
-    const swipeThreshold = 50; //滑动最小距离，避免误触
-    const diff = touchEndX - touchStartX;
+    const swipeThreshold = 50;
+    const diff = touchEndX ‑ touchStartX;
     if(Math.abs(diff) < swipeThreshold) return;
     if(diff > 0){
-        // 右滑 → 上一张
         prevPic();
     }else{
-        // 左滑 → 下一张
         nextPic();
     }
 }
