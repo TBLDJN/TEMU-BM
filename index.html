@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temu男装模特图库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 大图弹窗样式 */
+        .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:20px}
+        .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+        .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-6">Temu男装模特图库</h1>
+    <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="w-full p-3 rounded border mb-8 text-lg">
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+
+    <!--图片弹窗：放大、切换、下载-->
+    <div class="img-modal" id="modal">
+        <div class="flex items-center gap-4">
+            <span class="arrow" onclick="prevPic()">&lsaquo;</span>
+            <img id="modalImg" style="max-height:82vh;max-width:85%;">
+            <span class="arrow" onclick="nextPic()">&rsaquo;</span>
+        </div>
+        <div class="flex gap-4 mt-3">
+            <a id="downloadLink" download class="bg-blue-500 text-white px-5 py-2 rounded">下载原图</a>
+            <button onclick="closeModal()" class="bg-gray-600 text-white px-5 py-2 rounded">关闭</button>
+        </div>
+    </div>
+
+<script>
+// =====================【在这里维护你的款号和图片链接】=====================
+const dataList = [
+    {
+        code:"BM564",
+        imgs:[
+            "https://cdn.staticaly.com/gh/TBLDJN/image-storage@main/pic/BM564-1.jpg",
+            "https://cdn.staticaly.com/gh/TBLDJN/image-storage@main/pic/BM564-2.jpg"
+        ],
+        note:"Temu男装 BM564模特图"
+    }
+    // 新增款式直接复制上面{}结构，逗号隔开，粘贴在此处
+];
+// =======================================================================
+let nowImgs = [];
+let nowIndex = 0;
+const galleryDom = document.getElementById('gallery');
+const searchDom = document.getElementById('searchInput');
+
+//渲染款式卡片
+function render(list){
+    galleryDom.innerHTML = "";
+    if(list.length === 0){
+        galleryDom.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xl'>未找到对应款号</p>";
+        return;
+    }
+    list.forEach(item=>{
+        const card = document.createElement('div');
+        card.className = "bg-white rounded shadow overflow-hidden";
+        card.innerHTML = `
+            <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90">
+            <div class="p-3">
+                <div class="font-semibold">款号：${item.code}</div>
+                <div class="text-sm text-gray-500">共${item.imgs.length}张</div>
+                <div class="text-sm text-gray-600 mt-1">${item.note}</div>
+            </div>
+        `;
+        card.querySelector('img').onclick = ()=>openImageSet(item.imgs);
+        galleryDom.appendChild(card);
+    })
+}
+
+//搜索监听（模糊搜索，输入部分款号就能匹配）
+searchDom.oninput = function(){
+    const key = this.value.trim().toLowerCase();
+    const filter = dataList.filter(item=>item.code.toLowerCase().includes(key));
+    render(filter);
+}
+
+//弹窗逻辑：打开图集、上一张下一张、下载、关闭
+function openImageSet(imgs){
+    nowImgs = imgs;
+    nowIndex = 0;
+    refreshModal();
+    document.getElementById('modal').classList.add('active');
+}
+function refreshModal(){
+    document.getElementById('modalImg').src = nowImgs[nowIndex];
+    document.getElementById('downloadLink').href = nowImgs[nowIndex];
+}
+function nextPic(){
+    nowIndex = (nowIndex+1) % nowImgs.length;
+    refreshModal();
+}
+function prevPic(){
+    nowIndex = (nowIndex -1 + nowImgs.length) % nowImgs.length;
+    refreshModal();
+}
+function closeModal(){
+    document.getElementById('modal').classList.remove('active');
+}
+
+//页面初始化加载全部款式
+render(dataList);
+</script>
+</body>
+</html>
