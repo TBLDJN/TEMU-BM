@@ -9,12 +9,30 @@
         .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:20px}
         .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
         .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
+        /* 顶部固定栏 */
+        .top-bar{position:sticky;top:0;background:#f3f4f6;padding:16px 0;z-index:99}
     </style>
 </head>
-<body class="bg-gray-100 p-4 md:p-8 max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-6">Temu男装模特图库</h1>
-    <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="w-full p-3 rounded border mb-8 text-lg">
-    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+<body class="bg-gray-100 max-w-7xl mx-auto">
+    <!-- 永久置顶区域 -->
+    <div class="top-bar px-4 md:px-8">
+        <h1 class="text-3xl font-bold text-center mb-4">Temu男装模特图库</h1>
+        <div class="flex gap-3 items-center">
+            <button id="backHomeBtn" class="px-4 py-2 bg-gray-500 text-white rounded hidden">← 返回首页</button>
+            <input id="searchInput" placeholder="输入款号搜索（例如BM564）" class="flex-1 p-3 rounded border text-lg">
+        </div>
+    </div>
+
+    <!-- 主内容容器 -->
+    <div class="px-4 md:px-8 py-6">
+        <div id="pageHome">
+            <div id="galleryHome" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+        <div id="pageDetail" class="hidden">
+            <h2 class="text-xl font-bold mb-4">款号：<span id="detailCode"></span></h2>
+            <div id="galleryDetail" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"></div>
+        </div>
+    </div>
 
     <!--大图弹窗-->
     <div class="img-modal" id="modal">
@@ -30,7 +48,7 @@
     </div>
 
 <script>
-// =====================款式数据区域=====================
+// =====================款式数据【在这里新增款式】=====================
 const dataList = [
     {
         code:"BM564",
@@ -40,8 +58,7 @@ const dataList = [
         ],
         note:"Temu男装 BM564模特图"
     }
-    //新增款式模板，英文逗号隔开
-    /*
+    /*新增款式模板，粘贴到上方大括号后面，前面加上英文逗号
     ,{
         code:"BM565",
         imgs:["pic/BM565/BM565-1.jpg","pic/BM565/BM565-2.jpg"],
@@ -49,100 +66,91 @@ const dataList = [
     }
     */
 ];
-// =====================================================
+// =====================================================================
 let nowImgs = [];
 let nowIndex = 0;
-// 记录当前展开的款号，null=无展开
-let expandCode = null;
-const galleryDom = document.getElementById('gallery');
+//DOM元素
+const pageHome = document.getElementById('pageHome');
+const pageDetail = document.getElementById('pageDetail');
+const galleryHome = document.getElementById('galleryHome');
+const galleryDetail = document.getElementById('galleryDetail');
 const searchDom = document.getElementById('searchInput');
+const backHomeBtn = document.getElementById('backHomeBtn');
+const detailCodeDom = document.getElementById('detailCode');
 
-//渲染页面
-function render(list){
-    galleryDom.innerHTML = "";
+//切换到首页
+function showHome(){
+    pageHome.classList.remove('hidden');
+    pageDetail.classList.add('hidden');
+    backHomeBtn.classList.add('hidden');
+    renderHome(dataList);
+}
+
+//切换到详情页
+function showDetail(item){
+    pageHome.classList.add('hidden');
+    pageDetail.classList.remove('hidden');
+    backHomeBtn.classList.remove('hidden');
+    detailCodeDom.innerText = item.code;
+    renderDetail(item);
+}
+
+//渲染首页：只展示每个款式第一张图
+function renderHome(list){
+    galleryHome.innerHTML = "";
     if(list.length === 0){
-        galleryDom.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xl'>未找到对应款号</p>";
+        galleryHome.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xl'>未找到对应款号</p>";
         return;
     }
     list.forEach(item=>{
-        //款式外层容器
-        const wrap = document.createElement('div');
-        wrap.className = "bg-white rounded shadow overflow-hidden";
-
-        //默认预览卡片（只显示第一张）
-        const previewHtml = `
+        const card = document.createElement('div');
+        card.className = "bg-white rounded shadow overflow-hidden";
+        card.innerHTML = `
             <img src="${item.imgs[0]}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-90">
             <div class="p-3">
                 <div class="font-semibold">款号：${item.code}</div>
-                <div class="text-sm text-gray-500">共${item.imgs.length}张（点击查看全部）</div>
+                <div class="text-sm text-gray-500">共${item.imgs.length}张（点击进入查看全部）</div>
                 <div class="text-sm text-gray-600 mt-1">${item.note}</div>
             </div>
         `;
-
-        //全部图片网格（点击展开后显示）
-        let allImgHtml = `<div class="p-3 border-t"><div class="grid grid-cols-3 gap-3">`;
-        item.imgs.forEach((url,i)=>{
-            allImgHtml += `
-                <div>
-                    <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85" data-index="${i}">
-                    <a href="${url}" download class="block text-center mt-1 text-xs bg-green-500 text-white py-1 rounded">下载</a>
-                </div>
-            `;
-        })
-        allImgHtml += `</div><button class="mt-4 w-full bg-gray-400 text-white py-2 rounded collapseBtn">收起图片</button></div>`;
-
-        wrap.innerHTML = previewHtml;
-
-        //判断当前款式是否处于展开状态
-        if(expandCode === item.code){
-            wrap.innerHTML += allImgHtml;
-            //绑定小图点击弹窗事件
-            bindImageClick(wrap, item);
-        }
-
-        galleryDom.appendChild(wrap);
-
-        //预览卡片点击：展开当前款式
-        wrap.querySelector('img').onclick = ()=>{
-            //再次点击同一个款式则收起
-            if(expandCode === item.code){
-                expandCode = null;
-            }else{
-                expandCode = item.code;
-            }
-            render(list);
-        }
+        //点击卡片进入详情页
+        card.querySelector('img').onclick = ()=>showDetail(item);
+        galleryHome.appendChild(card);
     })
 }
 
-//绑定展开区域内图片点击弹窗
-function bindImageClick(wrapDom, item){
-    const imgList = wrapDom.querySelectorAll('[data-index]');
-    imgList.forEach(img=>{
-        img.onclick = function(){
-            const idx = Number(this.dataset.index);
-            openImageSet(item.imgs, idx);
+//渲染详情页：展示当前款所有图片
+function renderDetail(item){
+    galleryDetail.innerHTML = "";
+    item.imgs.forEach((url,i)=>{
+        const card = document.createElement('div');
+        card.className = "bg-white rounded shadow overflow-hidden";
+        card.innerHTML = `
+            <img src="${url}" class="w-full aspect-[3/4] object-cover cursor-pointer hover:opacity-85" data-imgidx="${i}">
+            <div class="p-2">
+                <a href="${url}" download class="block w-full text-center text-xs bg-green-500 text-white py-1 rounded">下载这张</a>
+            </div>
+        `;
+        card.querySelector('img').onclick = function(){
+            openImageSet(item.imgs, Number(this.dataset.imgidx));
         }
+        galleryDetail.appendChild(card);
     })
-    //收起按钮
-    wrapDom.querySelector('.collapseBtn').onclick = ()=>{
-        expandCode = null;
-        render(dataList.filter(searchFilter));
-    }
 }
 
-//搜索过滤
-let searchFilter = ()=>true;
+//顶部搜索
 searchDom.oninput = function(){
     const key = this.value.trim().toLowerCase();
-    searchFilter = item=>item.code.toLowerCase().includes(key);
-    const filterList = dataList.filter(searchFilter);
-    //搜索时自动收起所有展开图片
-    expandCode = null;
-    render(filterList);
+    const filterList = dataList.filter(item=>item.code.toLowerCase().includes(key));
+    renderHome(filterList);
+    //搜索自动回到首页
+    showHome();
 }
 
-//弹窗功能
+//返回首页按钮
+backHomeBtn.onclick = showHome;
+
+//弹窗预览
 function openImageSet(imgs, startIndex=0){
     nowImgs = imgs;
     nowIndex = startIndex;
@@ -165,8 +173,8 @@ function closeModal(){
     document.getElementById('modal').classList.remove('active');
 }
 
-//初始化渲染
-render(dataList);
+//初始化加载首页
+showHome();
 </script>
 </body>
 </html>
