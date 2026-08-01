@@ -101,7 +101,12 @@ function showDetail(item){
 function renderHome(list){
     galleryHome.innerHTML = "";
     if(list.length === 0){
-        galleryHome.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xl'>未找到对应款号</p>";
+        galleryHome.innerHTML = `<p id="emptyTip" class="col-span-full text-center text-gray-500 text-xl cursor-pointer mt-20">未找到对应款号</p>`;
+        //空白提示点击返回首页
+        document.getElementById('emptyTip').onclick = function(){
+            searchDom.value = '';
+            showHome(dataList);
+        }
         return;
     }
     list.forEach(item=>{
@@ -140,17 +145,15 @@ function renderDetail(item){
     })
 }
 
-//顶部搜索【修复】
+//顶部搜索
 searchDom.oninput = function(){
     const key = this.value.trim().toLowerCase();
     const filterList = dataList.filter(item=>item.code.toLowerCase().includes(key));
-    //直接传入筛选结果渲染首页
     showHome(filterList);
 }
 
 //返回首页按钮
 backHomeBtn.onclick = function(){
-    //返回首页恢复全部款式
     searchDom.value = '';
     showHome(dataList);
 };
