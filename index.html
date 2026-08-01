@@ -9,12 +9,10 @@
         .img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;padding:20px}
         .img-modal.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
         .arrow{font-size:40px;color:#fff;cursor:pointer;padding:12px}
-        /* 顶部固定栏 */
         .top-bar{position:sticky;top:0;background:#f3f4f6;padding:16px 0;z-index:99}
     </style>
 </head>
 <body class="bg-gray-100 max-w-7xl mx-auto">
-    <!-- 永久置顶区域 -->
     <div class="top-bar px-4 md:px-8">
         <h1 class="text-3xl font-bold text-center mb-4">Temu男装模特图库</h1>
         <div class="flex gap-3 items-center">
@@ -23,7 +21,6 @@
         </div>
     </div>
 
-    <!-- 主内容容器 -->
     <div class="px-4 md:px-8 py-6">
         <div id="pageHome">
             <div id="galleryHome" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
@@ -34,7 +31,6 @@
         </div>
     </div>
 
-    <!--大图弹窗-->
     <div class="img-modal" id="modal">
         <div class="flex items-center gap-4">
             <span class="arrow" onclick="prevPic()">&lsaquo;</span>
@@ -48,7 +44,6 @@
     </div>
 
 <script>
-// =====================款式数据【在这里新增款式】=====================
 const dataList = [
     {
         code:"BM564",
@@ -58,18 +53,12 @@ const dataList = [
         ],
         note:"Temu男装 BM564模特图"
     }
-    /*新增款式模板，粘贴到上方大括号后面，前面加上英文逗号
-    ,{
-        code:"BM565",
-        imgs:["pic/BM565/BM565-1.jpg","pic/BM565/BM565-2.jpg"],
-        note:"Temu男装 BM565模特图"
-    }
-    */
 ];
-// =====================================================================
+
 let nowImgs = [];
 let nowIndex = 0;
-//DOM元素
+let isEmptyResult = false; // 标记：是否处于【未找到款号】状态
+
 const pageHome = document.getElementById('pageHome');
 const pageDetail = document.getElementById('pageDetail');
 const galleryHome = document.getElementById('galleryHome');
@@ -80,7 +69,6 @@ const detailCodeDom = document.getElementById('detailCode');
 const modalDom = document.getElementById('modal');
 const modalImage = document.getElementById('modalImg');
 
-//切换到首页（支持传入筛选列表）
 function showHome(list = dataList){
     pageHome.classList.remove('hidden');
     pageDetail.classList.add('hidden');
@@ -88,7 +76,6 @@ function showHome(list = dataList){
     renderHome(list);
 }
 
-//切换到详情页
 function showDetail(item){
     pageHome.classList.add('hidden');
     pageDetail.classList.remove('hidden');
@@ -97,20 +84,14 @@ function showDetail(item){
     renderDetail(item);
 }
 
-//渲染首页：只展示每个款式第一张图
 function renderHome(list){
     galleryHome.innerHTML = "";
     if(list.length === 0){
         galleryHome.innerHTML = `<p class="col-span-full text-center text-gray-500 text-xl mt-20">未找到对应款号</p>`;
-        // 空白区域点击返回首页
-        galleryHome.onclick = function(){
-            searchDom.value = '';
-            showHome(dataList);
-        };
+        isEmptyResult = true;
         return;
     }
-    //有商品时，取消空白点击事件，防止点击空白误返回
-    galleryHome.onclick = null;
+    isEmptyResult = false;
     list.forEach(item=>{
         const card = document.createElement('div');
         card.className = "bg-white rounded shadow overflow-hidden";
@@ -122,13 +103,11 @@ function renderHome(list){
                 <div class="text-sm text-gray-600 mt-1">${item.note}</div>
             </div>
         `;
-        //点击卡片进入详情页
         card.querySelector('img').onclick = ()=>showDetail(item);
         galleryHome.appendChild(card);
     })
 }
 
-//渲染详情页：展示当前款所有图片
 function renderDetail(item){
     galleryDetail.innerHTML = "";
     item.imgs.forEach((url,i)=>{
@@ -147,20 +126,17 @@ function renderDetail(item){
     })
 }
 
-//顶部搜索
 searchDom.oninput = function(){
     const key = this.value.trim().toLowerCase();
     const filterList = dataList.filter(item=>item.code.toLowerCase().includes(key));
     showHome(filterList);
 }
 
-//返回首页按钮
 backHomeBtn.onclick = function(){
     searchDom.value = '';
     showHome(dataList);
 };
 
-//弹窗预览
 function openImageSet(imgs, startIndex=0){
     nowImgs = imgs;
     nowIndex = startIndex;
@@ -183,24 +159,27 @@ function closeModal(){
     modalDom.classList.remove('active');
 }
 
-//点击弹窗黑色空白区域关闭（点击图片内部不会关闭）
 modalDom.onclick = function(e){
     if(e.target === modalDom){
         closeModal();
     }
 };
 
-//键盘左右按键监听
 document.addEventListener('keydown', function(e){
     if(!modalDom.classList.contains('active')) return;
-    if(e.key === 'ArrowLeft'){
-        prevPic();
-    }else if(e.key === 'ArrowRight'){
-        nextPic();
-    }
+    if(e.key === 'ArrowLeft') prevPic();
+    if(e.key === 'ArrowRight') nextPic();
 });
 
-//初始化加载首页
+// ===== 核心修复：全局页面点击事件 =====
+document.body.onclick = function(e){
+    //条件：处于无搜索结果状态 && 点击目标不是搜索输入框（防止输入时误触发）
+    if(isEmptyResult && e.target !== searchDom){
+        searchDom.value = '';
+        showHome(dataList);
+    }
+}
+
 showHome();
 </script>
 </body>
